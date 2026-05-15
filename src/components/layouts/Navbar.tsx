@@ -5,21 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search,
-  Bell,
-  User,
   Menu,
   X,
   Flame,
   Sparkles,
   TrendingUp,
-  BookmarkCheck,
   ChevronDown,
-  LogIn,
-  UserPlus,
-  Settings,
-  LayoutDashboard,
-  Shield,
-  LogOut,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -42,9 +33,7 @@ export default function Navbar() {
   const searchRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Mock auth state - will be replaced with real auth
-  const isLoggedIn = false;
-  const isAdmin = false;
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,7 +113,7 @@ export default function Navbar() {
                 color: "#fff",
                 letterSpacing: "-0.02em",
               }}>
-                Prompt<span style={{ color: "#ff3131" }}>Nest</span>
+                Clip<span style={{ color: "#ff3131" }}>shot</span>
               </span>
             </Link>
 
@@ -319,188 +308,7 @@ export default function Navbar() {
                 <Search size={16} />
               </button>
 
-              {isLoggedIn ? (
-                <>
-                  {/* Saved */}
-                  <Link
-                    href="/dashboard/saved"
-                    className="hidden md:flex"
-                    style={{
-                      width: "36px",
-                      height: "36px",
-                      borderRadius: "8px",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(255,255,255,0.04)",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      textDecoration: "none",
-                      color: "var(--text-secondary)",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    <BookmarkCheck size={16} />
-                  </Link>
 
-                  {/* Notifications */}
-                  <button
-                    className="hidden md:flex"
-                    style={{
-                      position: "relative",
-                      width: "36px",
-                      height: "36px",
-                      borderRadius: "8px",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(255,255,255,0.04)",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    <Bell size={16} />
-                    <span style={{
-                      position: "absolute",
-                      top: "6px",
-                      right: "6px",
-                      width: "8px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      background: "#ff3131",
-                      border: "2px solid var(--bg-main)",
-                    }} />
-                  </button>
-
-                  {/* User Menu */}
-                  <div ref={userMenuRef} style={{ position: "relative" }}>
-                    <button
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        borderRadius: "50%",
-                        overflow: "hidden",
-                        border: "2px solid rgba(255,49,49,0.4)",
-                        cursor: "pointer",
-                        padding: 0,
-                        background: "transparent",
-                      }}
-                    >
-                      <img
-                        src="https://api.dicebear.com/9.x/avataaars/svg?seed=user"
-                        alt="User"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </button>
-
-                    {isUserMenuOpen && (
-                      <div style={{
-                        position: "absolute",
-                        top: "calc(100% + 8px)",
-                        right: 0,
-                        background: "var(--bg-elevated)",
-                        border: "1px solid var(--border)",
-                        borderRadius: "12px",
-                        padding: "0.5rem",
-                        minWidth: "200px",
-                        boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-                        zIndex: 50,
-                      }}>
-                        {[
-                          { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={15} /> },
-                          { label: "Profile", href: "/dashboard/profile", icon: <User size={15} /> },
-                          { label: "Saved Items", href: "/dashboard/saved", icon: <BookmarkCheck size={15} /> },
-                          ...(isAdmin ? [{ label: "Admin Panel", href: "/admin", icon: <Shield size={15} /> }] : []),
-                        ].map((item) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.5rem",
-                              padding: "0.5rem 0.75rem",
-                              borderRadius: "8px",
-                              textDecoration: "none",
-                              color: "var(--text-secondary)",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                              transition: "all 0.15s ease",
-                            }}
-                            onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
-                              (e.currentTarget as HTMLElement).style.color = "#fff";
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLElement).style.background = "transparent";
-                              (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
-                            }}
-                          >
-                            {item.icon}
-                            {item.label}
-                          </Link>
-                        ))}
-                        <div style={{ height: "1px", background: "var(--border)", margin: "0.375rem 0" }} />
-                        <button
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            padding: "0.5rem 0.75rem",
-                            borderRadius: "8px",
-                            width: "100%",
-                            textAlign: "left",
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#ef4444",
-                            fontSize: "0.875rem",
-                            fontWeight: 500,
-                          }}
-                        >
-                          <LogOut size={15} />
-                          Sign Out
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="hidden md:flex"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.375rem",
-                      padding: "0.5rem 1rem",
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      color: "var(--text-secondary)",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(255,255,255,0.04)",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    <LogIn size={15} />
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="hidden md:flex btn btn-primary"
-                    style={{
-                      padding: "0.5rem 1rem",
-                      fontSize: "0.875rem",
-                      textDecoration: "none",
-                    }}
-                  >
-                    <UserPlus size={15} />
-                    Sign Up
-                  </Link>
-                </>
-              )}
 
               {/* Mobile Menu Button */}
               <button
@@ -584,17 +392,7 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div style={{ height: "1px", background: "var(--border)", margin: "0.5rem 0" }} />
-              {!isLoggedIn && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.25rem" }}>
-                  <Link href="/login" className="btn btn-secondary" style={{ width: "100%", justifyContent: "center" }}>
-                    Sign In
-                  </Link>
-                  <Link href="/signup" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
-                    Sign Up Free
-                  </Link>
-                </div>
-              )}
+
             </div>
           </div>
         )}
