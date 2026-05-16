@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { X, Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -41,7 +42,6 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
       
-      // Simple CSV parsing that handles basic quotes
       const values: string[] = [];
       let current = "";
       let inQuotes = false;
@@ -67,6 +67,13 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
   const handleUpload = async () => {
     if (!file) return;
+    const currentUser = auth.currentUser;
+    
+    if (!currentUser) {
+      setError("You must be logged in as an admin to perform bulk uploads.");
+      setStatus("error");
+      return;
+    }
 
     try {
       setStatus("parsing");
@@ -86,13 +93,12 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         
-        // Map CSV row to Post structure
         const postData = {
           title: row.title || "Untitled Bulk Post",
-          slug: row.slug || (row.title ? row.title.toLowerCase().replace(/ /g, "-") : `post-${Date.now()}-${i}`),
+          slug: row.slug || (row.title ? row.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : `post-${Date.now()}-${i}`),
           description: row.description || "",
           featuredImage: {
-            url: row.imageurl || "https://via.placeholder.com/1200x800",
+            url: row.imageurl || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200",
             alt: row.title || "Featured image",
             width: 1200,
             height: 800
@@ -111,10 +117,10 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
             icon: "✨"
           },
           author: {
-            uid: "admin",
-            displayName: "Admin",
-            avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=admin",
-            username: "admin"
+            uid: currentUser.uid,
+            displayName: currentUser.displayName || "Admin",
+            avatar: currentUser.photoURL || "https://api.dicebear.com/9.x/avataaars/svg?seed=admin",
+            username: currentUser.email?.split("@")[0] || "admin"
           },
           stats: {
             views: 0,
@@ -131,13 +137,22 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
           updatedAt: serverTimestamp()
         };
 
-        await addDoc(postsRef, postData);
+        try {
+          await addDoc(postsRef, postData);
+        } catch (err: any) {
+          console.error(`Error at row ${i + 1}:`, err);
+          if (err.code === "permission-denied") {
+            throw new Error(`Permission denied at row ${i + 1}. Please ensure your admin account has write access to the 'posts' collection.`);
+          }
+          throw err;
+        }
+        
         setProgress(i + 1);
       }
 
       setStatus("completed");
     } catch (err: any) {
-      console.error(err);
+      console.error("Bulk upload failed:", err);
       setError(err.message || "An error occurred during upload.");
       setStatus("error");
     }
