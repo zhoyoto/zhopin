@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/constants";
+import { onAdminAuthChange, signOut } from "@/lib/auth";
+import type { User } from "firebase/auth";
 
 const NAV_LINKS = [
   { label: "Trending", href: "/trending", icon: <TrendingUp size={16} /> },
@@ -29,6 +31,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
   const searchRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -50,6 +53,13 @@ export default function Navbar() {
   }, [isSearchOpen]);
 
   useEffect(() => {
+    const unsub = onAdminAuthChange((u) => {
+      setIsAdmin(!!u);
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false);
@@ -68,6 +78,16 @@ export default function Navbar() {
     e.preventDefault();
     if (searchQuery.trim()) {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      setIsUserMenuOpen(false);
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
     }
   };
 
@@ -336,9 +356,16 @@ export default function Navbar() {
                     }}
                   >
                     <Link href="/login" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Profile</Link>
-                    <Link href="/admin" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Admin Panel</Link>
+                    {isAdmin && (
+                      <Link href="/admin" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Admin Panel</Link>
+                    )}
                     <div style={{ height: "1px", background: "var(--border)", margin: "0.4rem 0" }} />
-                    <button style={{ width: "100%", textAlign: "left", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}>Logout</button>
+                    <button 
+                      onClick={handleLogout}
+                      style={{ width: "100%", textAlign: "left", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}
+                    >
+                      Logout
+                    </button>
                   </div>
                 )}
               </div>
