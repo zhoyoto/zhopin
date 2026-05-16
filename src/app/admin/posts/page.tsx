@@ -2,16 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { PlusCircle, Search, Edit2, Trash2, Eye, Star, Loader2 } from "lucide-react";
+import { PlusCircle, Search, Edit2, Trash2, Eye, Star, Loader2, Upload } from "lucide-react";
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/db";
 import { formatNumber, formatDate } from "@/lib/utils";
+import BulkUploadModal from "@/components/admin/BulkUploadModal";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQ, setSearchQ] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
@@ -47,9 +49,18 @@ export default function AdminPostsPage() {
           <h1 style={{ fontSize: "1.75rem", fontWeight: 700, color: "#fff", fontFamily: "var(--font-heading)" }}>Posts</h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{posts.length} total posts</p>
         </div>
-        <Link href="/admin/posts/create" className="btn btn-primary" style={{ textDecoration: "none" }}>
-          <PlusCircle size={16} /> Create Post
-        </Link>
+        <div style={{ display: "flex", gap: "0.75rem" }}>
+          <button 
+            onClick={() => setIsBulkModalOpen(true)}
+            className="btn btn-secondary" 
+            style={{ border: "1px solid var(--border)" }}
+          >
+            <Upload size={16} /> Bulk Upload
+          </button>
+          <Link href="/admin/posts/create" className="btn btn-primary" style={{ textDecoration: "none" }}>
+            <PlusCircle size={16} /> Create Post
+          </Link>
+        </div>
       </div>
 
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
@@ -122,6 +133,11 @@ export default function AdminPostsPage() {
         .btn-icon.delete { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.06); color: #ef4444; }
         .btn-icon.delete:hover { background: #ef4444; color: #fff; }
       `}</style>
+      
+      <BulkUploadModal 
+        isOpen={isBulkModalOpen} 
+        onClose={() => setIsBulkModalOpen(false)} 
+      />
     </div>
   );
 }
