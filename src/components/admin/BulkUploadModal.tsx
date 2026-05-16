@@ -6,6 +6,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { slugify, delay } from "@/lib/utils";
+import Papa from "papaparse";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -33,37 +34,16 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
     }
   };
 
-  const parseCSV = (text: string) => {
-    const lines = text.split(/\r?\n/);
-    if (lines.length < 2) return [];
-
-    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-    const results = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      
-      const values: string[] = [];
-      let current = "";
-      let inQuotes = false;
-      for (let char of lines[i]) {
-        if (char === '"') inQuotes = !inQuotes;
-        else if (char === ',' && !inQuotes) {
-          values.push(current.trim());
-          current = "";
-        } else {
-          current += char;
-        }
-      }
-      values.push(current.trim());
-
-      const obj: any = {};
-      headers.forEach((h, idx) => {
-        obj[h] = values[idx] || "";
+  const parseCSVFile = (file: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (h) => h.trim().toLowerCase().replace(/\s+/g, ""),
+        complete: (results) => resolve(results.data),
+        error: (err) => reject(err),
       });
-      results.push(obj);
-    }
-    return results;
+    });
   };
 
   const handleUpload = async () => {
@@ -78,11 +58,10 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
     try {
       setStatus("parsing");
-      const text = await file.text();
-      const rows = parseCSV(text);
+      const rows = await parseCSVFile(file);
       
       if (rows.length === 0) {
-        throw new Error("CSV file is empty or invalid.");
+        throw new Error("CSV file is empty or invalid. Make sure it has headers: title, category, prompttext, etc.");
       }
 
       setTotal(rows.length);
@@ -94,8 +73,13 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        const title = row.title || "Untitled Bulk Post";
         
+        // Validation
+        if (!row.title || !row.category || !row.prompttext) {
+          throw new Error(`Row ${i + 1} failed: Missing required fields (title, category, or prompttext).`);
+        }
+
+        const title = row.title;
         const postData = {
           title: title,
           slug: row.slug || slugify(title) || `post-${Date.now()}-${i}`,
@@ -111,12 +95,12 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
           images: [],
           prompt: {
             title: title,
-            text: row.prompttext || row.prompt || "",
+            text: row.prompttext,
             model: row.model || "Midjourney",
             difficulty: row.difficulty || "Beginner"
           },
-          tags: row.tags ? row.tags.split(";").map((t: string) => t.trim()) : [],
-          category: row.category || "General", // The CreatePostPage sends just the slug string, not the object
+          tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
+          category: row.category,
           author: {
             uid: currentUser.uid,
             displayName: currentUser.displayName || "Admin",
@@ -130,8 +114,8 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
             shares: 0,
             comments: 0
           },
-          isFeatured: row.isfeatured === "true",
-          isTrending: row.istrending === "true",
+          isFeatured: String(row.isfeatured).toLowerCase() === "true",
+          isTrending: String(row.istrending).toLowerCase() === "true",
           status: row.status || "published",
           publishedAt: now,
           createdAt: now,
@@ -140,14 +124,15 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
         try {
           await addDoc(postsRef, postData);
-          // Add a small delay between uploads to avoid rate limits
-          await delay(200); 
+          await delay(150); 
         } catch (err: any) {
-          console.error(`Error at row ${i + 1}:`, err);
-          if (err.code === "permission-denied") {
-            throw new Error(`Permission denied at row ${i + 1}. This usually means the data structure doesn't match the required format or your account lacks permissions. Please check if Title, Category, and Prompt Text are present in the CSV.`);
-          }
-          throw err;
+          console.error("FIREBASE ERROR:", err);
+          console.error("ERROR CODE:", err.code);
+          console.error("ERROR MESSAGE:", err.message);
+          
+          throw new Error(
+            `Row ${i + 1} failed: ${err.code || "unknown"} - ${err.message}`
+          );
         }
         
         setProgress(i + 1);
