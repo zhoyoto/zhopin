@@ -62,7 +62,7 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
       const rows = await parseCSVFile(file);
       
       if (rows.length === 0) {
-        throw new Error("CSV file is empty or invalid. Make sure it has headers: title, category, prompttext, etc.");
+        throw new Error("CSV file is empty or invalid. Required headers: title, category, prompttext.");
       }
 
       setTotal(rows.length);
