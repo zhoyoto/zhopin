@@ -2,9 +2,10 @@
 
 import React, { useState, useRef } from "react";
 import { X, Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { slugify, delay } from "@/lib/utils";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -89,33 +90,33 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
       setProgress(0);
 
       const postsRef = collection(db, "posts");
+      const now = new Date().toISOString();
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
+        const title = row.title || "Untitled Bulk Post";
         
         const postData = {
-          title: row.title || "Untitled Bulk Post",
-          slug: row.slug || (row.title ? row.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : `post-${Date.now()}-${i}`),
+          title: title,
+          slug: row.slug || slugify(title) || `post-${Date.now()}-${i}`,
           description: row.description || "",
+          seoTitle: row.seotitle || title.slice(0, 60),
+          seoDescription: row.seodescription || (row.description ? row.description.slice(0, 160) : ""),
           featuredImage: {
             url: row.imageurl || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200",
-            alt: row.title || "Featured image",
+            alt: title,
             width: 1200,
             height: 800
           },
           images: [],
           prompt: {
-            title: row.title || "Prompt",
+            title: title,
             text: row.prompttext || row.prompt || "",
             model: row.model || "Midjourney",
             difficulty: row.difficulty || "Beginner"
           },
           tags: row.tags ? row.tags.split(";").map((t: string) => t.trim()) : [],
-          category: {
-            name: row.category || "General",
-            slug: (row.category || "General").toLowerCase().replace(/ /g, "-"),
-            icon: "✨"
-          },
+          category: row.category || "General", // The CreatePostPage sends just the slug string, not the object
           author: {
             uid: currentUser.uid,
             displayName: currentUser.displayName || "Admin",
@@ -129,20 +130,22 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
             shares: 0,
             comments: 0
           },
-          isFeatured: false,
-          isTrending: false,
-          status: "published",
-          publishedAt: new Date().toISOString(),
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
+          isFeatured: row.isfeatured === "true",
+          isTrending: row.istrending === "true",
+          status: row.status || "published",
+          publishedAt: now,
+          createdAt: now,
+          updatedAt: now
         };
 
         try {
           await addDoc(postsRef, postData);
+          // Add a small delay between uploads to avoid rate limits
+          await delay(200); 
         } catch (err: any) {
           console.error(`Error at row ${i + 1}:`, err);
           if (err.code === "permission-denied") {
-            throw new Error(`Permission denied at row ${i + 1}. Please ensure your admin account has write access to the 'posts' collection.`);
+            throw new Error(`Permission denied at row ${i + 1}. This usually means the data structure doesn't match the required format or your account lacks permissions. Please check if Title, Category, and Prompt Text are present in the CSV.`);
           }
           throw err;
         }
