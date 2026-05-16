@@ -6,6 +6,7 @@ import { Heart, Bookmark, Share2, Copy, Check, ChevronLeft, ChevronRight, Eye, M
 import { Post } from "@/lib/types";
 import { formatNumber, formatDate, copyToClipboard } from "@/lib/utils";
 import InspirationCard from "@/components/cards/InspirationCard";
+import GoogleAd from "@/components/GoogleAd";
 
 interface Props {
   post: Post;
@@ -155,6 +156,8 @@ export default function PostDetailClient({ post, similarPosts }: Props) {
               </div>
             )}
 
+            <GoogleAd slot="2616084302" className="my-6" />
+
             {/* Comments Section */}
             <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", borderRadius: "16px", padding: "1.5rem" }}>
               <h2 style={{ fontSize: "1.125rem", fontWeight: 700, color: "#fff", marginBottom: "1.25rem" }}>
@@ -260,6 +263,8 @@ export default function PostDetailClient({ post, similarPosts }: Props) {
                 ))}
               </div>
             </div>
+
+            <GoogleAd slot="2616084302" className="mt-6" />
           </aside>
         </div>
       </div>

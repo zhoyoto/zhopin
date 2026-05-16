@@ -5,6 +5,7 @@ import FeaturedSpotlight from "@/components/home/FeaturedSpotlight";
 import MasonryGrid from "@/components/home/MasonryGrid";
 import NewsletterSection from "@/components/home/NewsletterSection";
 import FeaturedCreators from "@/components/home/FeaturedCreators";
+import GoogleAd from "@/components/GoogleAd";
 
 export const metadata: Metadata = {
   title: "PromptNest AI – Discover AI Inspirations That Spark Creativity",
@@ -30,6 +31,10 @@ export default function HomePage() {
         subtitle="Discover what the community loves most right now"
         filterType="trending"
       />
+
+      <div className="container-main">
+        <GoogleAd slot="2616084302" />
+      </div>
 
       {/* Newsletter */}
       <NewsletterSection />
