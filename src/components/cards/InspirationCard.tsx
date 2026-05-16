@@ -7,6 +7,10 @@ import { Heart, Bookmark, Eye, Share2, MoreVertical, Copy, ExternalLink } from "
 import { Post } from "@/lib/types";
 import { formatNumber, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { openAuthModal } from "@/components/GlobalAuthModal";
+import { onAuthChange } from "@/lib/auth";
+import type { User } from "firebase/auth";
+import { useEffect } from "react";
 
 interface InspirationCardProps {
   post: Post;
@@ -19,10 +23,17 @@ export default function InspirationCard({ post, className }: InspirationCardProp
   const [likeCount, setLikeCount] = useState(post.stats.likes);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthChange((u) => setUser(u));
+    return unsub;
+  }, []);
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) { openAuthModal(); return; }
     setIsLiked(!isLiked);
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
@@ -30,6 +41,7 @@ export default function InspirationCard({ post, className }: InspirationCardProp
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) { openAuthModal(); return; }
     setIsSaved(!isSaved);
   };
 

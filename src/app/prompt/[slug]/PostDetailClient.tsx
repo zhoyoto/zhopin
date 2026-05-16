@@ -7,6 +7,10 @@ import { Post } from "@/lib/types";
 import { formatNumber, formatDate, copyToClipboard } from "@/lib/utils";
 import InspirationCard from "@/components/cards/InspirationCard";
 import GoogleAd from "@/components/GoogleAd";
+import { openAuthModal } from "@/components/GlobalAuthModal";
+import { onAuthChange } from "@/lib/auth";
+import type { User } from "firebase/auth";
+import { useEffect } from "react";
 
 interface Props {
   post: Post;
@@ -21,6 +25,12 @@ export default function PostDetailClient({ post, similarPosts }: Props) {
   const [isCopied, setIsCopied] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [comment, setComment] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthChange((u) => setUser(u));
+    return unsub;
+  }, []);
 
   const handleCopyPrompt = async () => {
     await copyToClipboard(post.prompt.text);
@@ -64,11 +74,20 @@ export default function PostDetailClient({ post, similarPosts }: Props) {
 
             {/* Action Bar */}
             <div style={{ display: "flex", gap: "0.625rem", marginBottom: "2rem", flexWrap: "wrap" }}>
-              <button onClick={() => { setIsLiked(!isLiked); setLikeCount(p => isLiked ? p - 1 : p + 1); }}
+              <button 
+                onClick={() => { 
+                  if (!user) { openAuthModal(); return; }
+                  setIsLiked(!isLiked); 
+                  setLikeCount(p => isLiked ? p - 1 : p + 1); 
+                }}
                 className="btn" style={{ padding: "0.625rem 1rem", border: "1px solid", borderColor: isLiked ? "rgba(255,49,49,0.4)" : "var(--border)", background: isLiked ? "rgba(255,49,49,0.12)" : "transparent", color: isLiked ? "#ff6b81" : "var(--text-secondary)" }}>
                 <Heart size={16} fill={isLiked ? "currentColor" : "none"} /> {formatNumber(likeCount)}
               </button>
-              <button onClick={() => setIsSaved(!isSaved)}
+              <button 
+                onClick={() => {
+                  if (!user) { openAuthModal(); return; }
+                  setIsSaved(!isSaved);
+                }}
                 className="btn" style={{ padding: "0.625rem 1rem", border: "1px solid", borderColor: isSaved ? "rgba(139,92,246,0.4)" : "var(--border)", background: isSaved ? "rgba(139,92,246,0.12)" : "transparent", color: isSaved ? "#a78bfa" : "var(--text-secondary)" }}>
                 <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} /> {isSaved ? "Saved" : "Save"}
               </button>

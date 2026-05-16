@@ -8,7 +8,7 @@ const FOOTER_LINKS = {
   Company: [
     { label: "About", href: "/about" },
     { label: "Careers", href: "#" },
-    { label: "Contact", href: "/contact" },
+    { label: "Contact", href: "https://wa.me/919947410627?text=Hi%2C%20I%20have%20an%20enquiry%20regarding%20Clipshots%20AI" },
     { label: "Blog", href: "#" },
   ],
   Product: [
@@ -21,7 +21,6 @@ const FOOTER_LINKS = {
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms of Service", href: "/terms-and-conditions" },
     { label: "Cookie Policy", href: "/cookie-policy" },
-    { label: "Sitemap", href: "/sitemap.xml" },
   ],
 };
 
@@ -84,7 +83,7 @@ export default function Footer() {
                   color: "#fff",
                 }}
               >
-                Prompt<span style={{ color: "#ff3131" }}>Nest</span> AI
+                Clipshots<span style={{ color: "#ff3131" }}> Ai</span>
               </span>
             </Link>
             <p
@@ -267,12 +266,15 @@ export default function Footer() {
               gap: "0.25rem",
             }}
           >
-            © 2024 PromptNest AI. Made with{" "}
+            © 2024 Clipshots Ai. Made with{" "}
             <Heart size={12} fill="#ff3131" color="#ff3131" /> for creators.
+            <span style={{ marginLeft: "1rem", opacity: 0.8 }}>
+              Created by team <a href="https://crispo.xo.je/" target="_blank" rel="noopener noreferrer" style={{ color: "#ff3131", textDecoration: "none", fontWeight: 600 }}>crispo</a>
+            </span>
           </p>
           <div style={{ display: "flex", gap: "1.25rem" }}>
             <a
-              href="/sitemap.xml"
+              href="/privacy-policy"
               style={{
                 color: "var(--text-tertiary)",
                 fontSize: "0.8125rem",
@@ -282,8 +284,7 @@ export default function Footer() {
                 gap: "0.25rem",
               }}
             >
-              <Rss size={13} />
-              RSS Feed
+              Privacy Policy
             </a>
             <a
               href="#"

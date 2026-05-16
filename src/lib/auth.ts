@@ -31,6 +31,12 @@ export async function signOut(): Promise<void> {
 }
 
 // ─── Subscribe to auth state ──────────────────────────────────────────────────
+export function onAuthChange(callback: (user: User | null) => void) {
+  return onAuthStateChanged(auth, (user) => {
+    callback(user);
+  });
+}
+
 export function onAdminAuthChange(callback: (user: User | null) => void) {
   return onAuthStateChanged(auth, (user) => {
     callback(isAdminEmail(user?.email) ? user : null);
