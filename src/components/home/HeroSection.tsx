@@ -259,15 +259,8 @@ export default function HeroSection() {
                 <ArrowRight size={16} />
               </Link>
               <Link
-                href="/signup"
-                className="btn btn-secondary"
-                style={{ padding: "0.75rem 1.5rem", borderRadius: "10px", textDecoration: "none" }}
-              >
-                Create Account
-              </Link>
-              <Link
                 href="/trending"
-                className="btn btn-ghost"
+                className="btn btn-secondary"
                 style={{ padding: "0.75rem 1.5rem", borderRadius: "10px", textDecoration: "none" }}
               >
                 <TrendingUp size={16} />

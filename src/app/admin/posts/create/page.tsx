@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Save, Eye, Loader2, Plus, X, Upload } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { slugify } from "@/lib/utils";
+import { savePost } from "@/lib/db";
 
 const AI_MODELS = ["Midjourney", "DALL-E 3", "Stable Diffusion", "ChatGPT", "Claude", "Gemini", "Other"];
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 
 export default function CreatePostPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     title: "", slug: "", category: "", tags: [] as string[], tagInput: "",
     description: "", promptTitle: "", promptText: "", model: "Midjourney", difficulty: "Intermediate",
@@ -28,10 +31,26 @@ export default function CreatePostPage() {
   };
 
   const handleSave = async (status = "draft") => {
+    if (!form.title || !form.category || !form.promptText) {
+      alert("Please fill in required fields (Title, Category, Prompt Text)");
+      return;
+    }
     setIsSaving(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setIsSaving(false);
-    alert(`Post ${status === "published" ? "published" : "saved as draft"}! ✅`);
+    try {
+      await savePost({
+        ...form,
+        status,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      alert(`Post ${status === "published" ? "published" : "saved as draft"}! ✅`);
+      router.push("/admin/posts");
+    } catch (e) {
+      console.error(e);
+      alert("Error saving post.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const TABS = ["basic", "prompt", "seo", "publish"] as const;

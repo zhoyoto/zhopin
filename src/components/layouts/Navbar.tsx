@@ -93,27 +93,16 @@ export default function Navbar() {
         <div className="container-main">
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
             {/* Logo */}
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none", flexShrink: 0 }}>
-              <div style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "10px",
-                background: "linear-gradient(135deg, #ff3131 0%, #ff6b81 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 0 20px rgba(255,49,49,0.4)",
-              }}>
-                <Zap size={18} color="#fff" fill="#fff" />
-              </div>
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.625rem", textDecoration: "none", flexShrink: 0 }}>
+              <img src="/logo.png" alt="Clipshots Ai" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
               <span style={{
                 fontFamily: "var(--font-heading), 'Space Grotesk', sans-serif",
                 fontWeight: 700,
-                fontSize: "1.125rem",
+                fontSize: "1.25rem",
                 color: "#fff",
                 letterSpacing: "-0.02em",
               }}>
-                Clip<span style={{ color: "#ff3131" }}>shot</span>
+                Clipshots<span style={{ color: "#ff3131" }}> Ai</span>
               </span>
             </Link>
 
@@ -309,6 +298,50 @@ export default function Navbar() {
               </button>
 
 
+
+              {/* User Menu */}
+              <div style={{ position: "relative" }} ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
+                    border: "2px solid rgba(255,49,49,0.3)",
+                    background: "rgba(255,255,255,0.04)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    overflow: "hidden",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=user" alt="User" style={{ width: "100%", height: "100%" }} />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 10px)",
+                      right: 0,
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "14px",
+                      padding: "0.5rem",
+                      width: "180px",
+                      boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+                      zIndex: 100,
+                    }}
+                  >
+                    <Link href="/login" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Profile</Link>
+                    <Link href="/admin" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Admin Panel</Link>
+                    <div style={{ height: "1px", background: "var(--border)", margin: "0.4rem 0" }} />
+                    <button style={{ width: "100%", textAlign: "left", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}>Logout</button>
+                  </div>
+                )}
+              </div>
 
               {/* Mobile Menu Button */}
               <button

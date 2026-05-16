@@ -29,12 +29,10 @@ function AdminSidebar() {
     <aside style={{ width: "240px", background: "var(--bg-secondary)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", position: "fixed", top: 0, left: 0, bottom: 0, zIndex: 100, flexShrink: 0 }}>
       {/* Logo */}
       <div style={{ padding: "1.25rem 1.25rem 1rem", borderBottom: "1px solid var(--border)" }}>
-        <Link href="/admin" style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}>
-          <div style={{ width: "34px", height: "34px", borderRadius: "9px", background: "linear-gradient(135deg, #ff3131, #ff6b81)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Zap size={16} color="#fff" fill="#fff" />
-          </div>
+        <Link href="/admin" style={{ display: "flex", alignItems: "center", gap: "0.625rem", textDecoration: "none" }}>
+          <img src="/logo.png" alt="Logo" style={{ width: "30px", height: "30px", objectFit: "contain" }} />
           <div>
-            <span style={{ fontWeight: 700, color: "#fff", fontSize: "0.9375rem" }}>Clipshot</span>
+            <span style={{ fontWeight: 700, color: "#fff", fontSize: "1rem" }}>Clipshots Ai</span>
             <span style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.6875rem", color: "#ff6b81", fontWeight: 600 }}>
               <Shield size={9} /> ADMIN
             </span>
