@@ -356,9 +356,6 @@ export default function Navbar() {
                     }}
                   >
                     <Link href="/login" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Profile</Link>
-                    {isAdmin && (
-                      <Link href="/admin" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Admin Panel</Link>
-                    )}
                     <div style={{ height: "1px", background: "var(--border)", margin: "0.4rem 0" }} />
                     <button 
                       onClick={handleLogout}
