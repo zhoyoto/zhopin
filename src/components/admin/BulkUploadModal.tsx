@@ -2,9 +2,9 @@
 
 import React, { useState, useRef } from "react";
 import { X, Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { useAuth } from "@/context/AuthContext";
 import { slugify, delay } from "@/lib/utils";
 import Papa from "papaparse";
 
@@ -14,6 +14,7 @@ interface BulkUploadModalProps {
 }
 
 export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProps) {
+  const { user: currentUser, isAdmin, loading: authLoading } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "parsing" | "uploading" | "completed" | "error">("idle");
   const [progress, setProgress] = useState(0);
@@ -48,9 +49,9 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
   const handleUpload = async () => {
     if (!file) return;
-    const currentUser = auth.currentUser;
     
-    if (!currentUser) {
+    if (authLoading) return;
+    if (!isAdmin || !currentUser) {
       setError("You must be logged in as an admin to perform bulk uploads.");
       setStatus("error");
       return;
@@ -124,15 +125,10 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
 
         try {
           await addDoc(postsRef, postData);
-          await delay(150); 
+          await delay(100); 
         } catch (err: any) {
           console.error("FIREBASE ERROR:", err);
-          console.error("ERROR CODE:", err.code);
-          console.error("ERROR MESSAGE:", err.message);
-          
-          throw new Error(
-            `Row ${i + 1} failed: ${err.code || "unknown"} - ${err.message}`
-          );
+          throw new Error(`Row ${i + 1} failed: ${err.code} - ${err.message}`);
         }
         
         setProgress(i + 1);

@@ -76,6 +76,7 @@ export const metadata: Metadata = {
 };
 
 import GlobalAuthModal from "@/components/GlobalAuthModal";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function RootLayout({
   children,
@@ -109,11 +110,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <AnalyticsProvider />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <GlobalAuthModal />
+        <AuthProvider>
+          <AnalyticsProvider />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+          <GlobalAuthModal />
+        </AuthProvider>
       </body>
     </html>
   );

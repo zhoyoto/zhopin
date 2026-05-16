@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == "zhoyotokoff@gmail.com" || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
+
+    // Posts Collection
+    match /posts/{postId} {
+      // Anyone can read published posts
+      allow read: if resource.data.status == "published" || isAdmin();
+      
+      // Only admins can create, update, or delete posts
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Categories Collection
+    match /categories/{catId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -3,24 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { onAdminAuthChange } from "@/lib/auth";
-import type { User } from "firebase/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
+  const { isAdmin, loading } = useAuth();
 
   useEffect(() => {
-    const unsub = onAdminAuthChange((u) => {
-      setUser(u);
-      if (u === null) {
-        router.replace("/login-admin");
-      }
-    });
-    return unsub;
-  }, [router]);
+    if (!loading && !isAdmin) {
+      router.replace("/login-admin");
+    }
+  }, [isAdmin, loading, router]);
 
-  if (user === undefined) {
+  if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-deep)" }}>
         <Loader2 size={32} style={{ animation: "spin 1s linear infinite", color: "#ff3131" }} />
