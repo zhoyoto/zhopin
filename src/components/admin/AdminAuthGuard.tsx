@@ -1,25 +1,44 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/auth";
 
-export default function AdminAuthGuard({ children }: { children: React.ReactNode }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export default function AdminAuthGuard({
+  children,
+}: Props) {
   const router = useRouter();
-  const { isAdmin, loading } = useAuth();
+
+  const [user, setUser] = useState<User | null>(null);
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !isAdmin) {
-      router.replace("/login-admin");
-    }
-  }, [isAdmin, loading, router]);
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (!currentUser) {
+          router.push("/login");
+        } else {
+          setUser(currentUser);
+        }
+
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [router]);
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-deep)" }}>
-        <Loader2 size={32} style={{ animation: "spin 1s linear infinite", color: "#ff3131" }} />
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <div className="flex items-center justify-center min-h-screen text-white">
+        Loading...
       </div>
     );
   }
