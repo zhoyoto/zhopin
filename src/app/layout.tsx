@@ -76,7 +76,7 @@ export const metadata: Metadata = {
 };
 
 import GlobalAuthModal from "@/components/GlobalAuthModal";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthProvider";
 
 export default function RootLayout({
   children,

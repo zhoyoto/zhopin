@@ -1,10 +1,10 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { type Analytics } from "firebase/analytics";
+import { getAuth, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-// Values come from .env.local via NEXT_PUBLIC_ prefix (safe to expose in
-// browser bundles — Firebase API keys are not secrets; they identify the
-// project. Actual security is enforced by Firebase Security Rules).
+// Values come from .env.local via NEXT_PUBLIC_ prefix
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -17,21 +17,29 @@ const firebaseConfig = {
 };
 
 // ─── Singleton initialisation ─────────────────────────────────────────────────
-// getApps() prevents "Firebase: Firebase App named '[DEFAULT]' already exists"
-// errors that occur with Next.js hot-reloads and module re-evaluation.
-
 export const firebaseApp: FirebaseApp =
   getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// ─── Analytics (client-only) ──────────────────────────────────────────────────
-// Analytics uses browser APIs (window, navigator) so it must never run on the
-// server. We lazy-load it behind a typeof window guard.
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+export const auth = getAuth(firebaseApp);
 
+// Initialize persistence
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Auth persistence error:", error);
+  });
+}
+
+export const googleProvider = new GoogleAuthProvider();
+
+// ─── Firestore ────────────────────────────────────────────────────────────────
+export const db = getFirestore(firebaseApp);
+
+// ─── Analytics (client-only) ──────────────────────────────────────────────────
 let analyticsInstance: Analytics | null = null;
 
 export async function getFirebaseAnalytics(): Promise<Analytics | null> {
   if (typeof window === "undefined") return null;
-
   if (analyticsInstance) return analyticsInstance;
 
   const { getAnalytics, isSupported } = await import("firebase/analytics");

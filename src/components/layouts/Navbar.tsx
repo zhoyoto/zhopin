@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/constants";
-import { onAdminAuthChange, signOut } from "@/lib/auth";
+import { useAuth } from "@/context/AuthProvider";
 import type { User } from "firebase/auth";
 
 const NAV_LINKS = [
@@ -31,12 +31,10 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { user, isAdmin, logout } = useAuth();
   const pathname = usePathname();
   const searchRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,13 +49,6 @@ export default function Navbar() {
       searchRef.current?.focus();
     }
   }, [isSearchOpen]);
-
-  useEffect(() => {
-    const unsub = onAdminAuthChange((u) => {
-      setIsAdmin(!!u);
-    });
-    return unsub;
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -83,9 +74,8 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await logout();
       setIsUserMenuOpen(false);
-      window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
     }

@@ -1,49 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/auth";
+import { useAuth } from "@/context/AuthProvider";
 
 interface Props {
   children: React.ReactNode;
 }
 
-export default function AdminAuthGuard({
-  children,
-}: Props) {
+export default function AdminAuthGuard({ children }: Props) {
   const router = useRouter();
-
-  const [user, setUser] = useState<User | null>(null);
-
-  const [loading, setLoading] = useState(true);
+  const { user, loading, isAdmin } = useAuth();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        if (!currentUser) {
-          router.push("/login");
-        } else {
-          setUser(currentUser);
-        }
-
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [router]);
+    if (!loading && (!user || !isAdmin)) {
+      router.push("/login");
+    }
+  }, [user, loading, isAdmin, router]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
-        Loading...
+      <div className="flex items-center justify-center min-h-screen text-white bg-[#0A0A0A]">
+        <div className="w-8 h-8 border-4 border-[#ff3131] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  if (!user) return null;
+  if (!user || !isAdmin) return null;
 
   return <>{children}</>;
 }

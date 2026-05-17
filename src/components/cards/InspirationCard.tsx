@@ -8,8 +8,7 @@ import { Post } from "@/lib/types";
 import { formatNumber, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { openAuthModal } from "@/components/GlobalAuthModal";
-import { onAuthChange } from "@/lib/auth";
-import type { User } from "firebase/auth";
+import { useAuth } from "@/context/AuthProvider";
 import { useEffect } from "react";
 
 interface InspirationCardProps {
@@ -23,12 +22,7 @@ export default function InspirationCard({ post, className }: InspirationCardProp
   const [likeCount, setLikeCount] = useState(post.stats.likes);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsub = onAuthChange((u) => setUser(u));
-    return unsub;
-  }, []);
+  const { user } = useAuth();
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault();

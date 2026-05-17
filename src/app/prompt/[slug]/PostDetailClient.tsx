@@ -8,8 +8,7 @@ import { formatNumber, formatDate, copyToClipboard } from "@/lib/utils";
 import InspirationCard from "@/components/cards/InspirationCard";
 import GoogleAd from "@/components/GoogleAd";
 import { openAuthModal } from "@/components/GlobalAuthModal";
-import { onAuthChange } from "@/lib/auth";
-import type { User } from "firebase/auth";
+import { useAuth } from "@/context/AuthProvider";
 import { useEffect } from "react";
 
 interface Props {
@@ -25,12 +24,7 @@ export default function PostDetailClient({ post, similarPosts }: Props) {
   const [isCopied, setIsCopied] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [comment, setComment] = useState("");
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsub = onAuthChange((u) => setUser(u));
-    return unsub;
-  }, []);
+  const { user } = useAuth();
 
   const handleCopyPrompt = async () => {
     await copyToClipboard(post.prompt.text);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, FileText, Images, MessageSquare, BarChart3, Settings, Shield, Zap, PlusCircle, LogOut } from "lucide-react";
 import AdminAuthGuard from "@/components/admin/AdminAuthGuard";
-import { signOut } from "@/lib/auth";
+import { useAuth } from "@/context/AuthProvider";
 
 const NAV = [
   { label: "Dashboard", href: "/admin", icon: <LayoutDashboard size={17} /> },
@@ -18,11 +18,10 @@ const NAV = [
 
 function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
-    await signOut();
-    router.push("/login-admin");
+    await logout();
   };
 
   return (
