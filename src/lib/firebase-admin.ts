@@ -1,39 +1,33 @@
-import * as admin from "firebase-admin";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 
-const getPrivateKey = () => {
-  const b64Key = process.env.FIREBASE_PRIVATE_KEY_B64;
-  if (b64Key) {
-    try {
-      return Buffer.from(b64Key, "base64").toString("utf8");
-    } catch (e) {
-      console.error("Failed to decode Base64 key:", e);
-    }
-  }
-  return process.env.FIREBASE_PRIVATE_KEY?.replace(/\"/g, "").replace(/\\n/g, "\n");
-};
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-function getAdminApp() {
-  if (!admin.apps.length) {
-    const privateKey = getPrivateKey();
-    if (!privateKey) {
-      console.warn("FIREBASE_PRIVATE_KEY is missing or invalid.");
-    }
+let adminAuth: any;
 
-    const firebaseAdminConfig = {
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: privateKey,
-    };
+if (
+projectId &&
+clientEmail &&
+privateKey
+) {
+const app =
+getApps().length > 0
+? getApps()[0]
+: initializeApp({
+credential: cert({
+projectId,
+clientEmail,
+privateKey: privateKey.replace(/\n/g, "\n"),
+}),
+});
 
-    return admin.initializeApp({
-      credential: admin.credential.cert(firebaseAdminConfig),
-    });
-  }
-  return admin.apps[0]!;
+adminAuth = getAuth(app);
+} else {
+console.error(
+"Firebase Admin environment variables are missing."
+);
 }
 
-// Ensure app is initialized before services
-const app = getAdminApp();
-
-export const adminAuth = admin.auth(app);
-export const adminDb = admin.firestore(app);
+export { adminAuth };

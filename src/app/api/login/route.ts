@@ -1,28 +1,51 @@
-import { adminAuth } from "@/lib/firebase-admin";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { adminAuth } from "@/lib/firebase-admin";
 
-export const dynamic = "force-dynamic";
+export async function POST(req: Request) {
+try {
+if (!adminAuth) {
+return NextResponse.json(
+{ error: "Firebase Admin not initialized" },
+{ status: 500 }
+);
+}
 
-export async function POST(request: Request) {
-  try {
-    const { idToken } = await request.json();
-    
-    // Set session expiration to 5 days
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
-    
-    const cookieStore = await cookies();
-    cookieStore.set("session", sessionCookie, {
-      maxAge: expiresIn,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-    });
+const { idToken } = await req.json();
 
-    return NextResponse.json({ status: "success" });
-  } catch (error: any) {
-    console.error("Login API error:", error);
-    return NextResponse.json({ error: error.message }, { status: 401 });
+const expiresIn =
+  60 * 60 * 24 * 5 * 1000;
+
+const sessionCookie =
+  await adminAuth.createSessionCookie(
+    idToken,
+    { expiresIn }
+  );
+
+const response = NextResponse.json({
+  success: true,
+});
+
+response.cookies.set(
+  "session",
+  sessionCookie,
+  {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: expiresIn / 1000,
+    path: "/",
   }
+);
+
+return response;
+} catch (error: any) {
+console.error(error);
+
+return NextResponse.json(
+  {
+    error: error.message,
+  },
+  { status: 500 }
+);
+}
 }
