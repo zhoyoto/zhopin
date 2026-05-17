@@ -14,7 +14,7 @@ interface BulkUploadModalProps {
 }
 
 export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProps) {
-  const { user: currentUser, isAdmin, loading: authLoading } = useAuth();
+  const { user: currentUser, profile, isAdmin, loading: authLoading } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "parsing" | "uploading" | "completed" | "error">("idle");
   const [progress, setProgress] = useState(0);
@@ -103,10 +103,10 @@ export default function BulkUploadModal({ isOpen, onClose }: BulkUploadModalProp
           tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
           category: row.category,
           author: {
-            uid: currentUser.uid,
-            displayName: currentUser.displayName || "Admin",
-            avatar: currentUser.photoURL || "https://api.dicebear.com/9.x/avataaars/svg?seed=admin",
-            username: currentUser.email?.split("@")[0] || "admin"
+            uid: profile?.uid || currentUser.uid,
+            displayName: profile?.displayName || currentUser.displayName || "Admin",
+            avatar: profile?.avatar || currentUser.photoURL || "https://api.dicebear.com/9.x/avataaars/svg?seed=admin",
+            username: profile?.username || currentUser.email?.split("@")[0] || "admin"
           },
           stats: {
             views: 0,

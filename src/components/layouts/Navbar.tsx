@@ -309,53 +309,73 @@ export default function Navbar() {
 
 
 
-              {/* User Menu */}
-              <div style={{ position: "relative" }} ref={userMenuRef}>
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "50%",
-                    border: "2px solid rgba(255,49,49,0.3)",
-                    background: "rgba(255,255,255,0.04)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    overflow: "hidden",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=user" alt="User" style={{ width: "100%", height: "100%" }} />
-                </button>
-
-                {isUserMenuOpen && (
-                  <div
+              {/* User Actions */}
+              {user ? (
+                <div style={{ position: "relative" }} ref={userMenuRef}>
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     style={{
-                      position: "absolute",
-                      top: "calc(100% + 10px)",
-                      right: 0,
-                      background: "var(--bg-elevated)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "14px",
-                      padding: "0.5rem",
-                      width: "180px",
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
-                      zIndex: 100,
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "50%",
+                      border: "2px solid rgba(255,49,49,0.3)",
+                      background: "rgba(255,255,255,0.04)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      overflow: "hidden",
+                      transition: "all 0.2s ease",
                     }}
                   >
-                    <Link href="/login" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Profile</Link>
-                    <div style={{ height: "1px", background: "var(--border)", margin: "0.4rem 0" }} />
-                    <button
-                      onClick={handleLogout}
-                      style={{ width: "100%", textAlign: "left", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}
+                    <img src={user.photoURL || "https://api.dicebear.com/9.x/avataaars/svg?seed=user"} alt="User" style={{ width: "100%", height: "100%" }} />
+                  </button>
+
+                  {isUserMenuOpen && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "calc(100% + 10px)",
+                        right: 0,
+                        background: "var(--bg-elevated)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "14px",
+                        padding: "0.5rem",
+                        width: "180px",
+                        boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+                        zIndex: 100,
+                      }}
                     >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
+                      {isAdmin && (
+                        <>
+                          <Link href="/admin" style={{ display: "block", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>Admin Dashboard</Link>
+                          <div style={{ height: "1px", background: "var(--border)", margin: "0.4rem 0" }} />
+                        </>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        style={{ width: "100%", textAlign: "left", padding: "0.625rem 0.875rem", borderRadius: "8px", color: "#ef4444", background: "none", border: "none", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="btn btn-primary"
+                  style={{
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    textDecoration: "none"
+                  }}
+                >
+                  Login
+                </Link>
+              )}
 
               {/* Mobile Menu Button */}
               <button
