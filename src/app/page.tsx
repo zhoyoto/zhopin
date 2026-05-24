@@ -33,7 +33,7 @@ export default function HomePage() {
       />
 
       <div className="container-main">
-        <GoogleAd slot="2616084302" />
+        <GoogleAd slot="1095400918" />
       </div>
 
       {/* Newsletter */}
