@@ -3,10 +3,14 @@
 import React, { useEffect } from "react";
 
 interface GoogleAdProps {
+  slot: string;
   className?: string;
 }
 
-export default function GoogleAd({ className }: GoogleAdProps) {
+export default function GoogleAd({
+  slot,
+  className,
+}: GoogleAdProps) {
   useEffect(() => {
     try {
       // @ts-ignore
@@ -23,11 +27,14 @@ export default function GoogleAd({ className }: GoogleAdProps) {
     >
       <ins
         className="adsbygoogle"
-        style={{ display: "block", textAlign: "center" }}
+        style={{
+          display: "block",
+          textAlign: "center",
+        }}
         data-ad-layout="in-article"
         data-ad-format="fluid"
         data-ad-client="ca-pub-8799997169133707"
-        data-ad-slot="1095400918"
+        data-ad-slot={slot}
       ></ins>
     </div>
   );
