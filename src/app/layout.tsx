@@ -87,11 +87,11 @@ export default function RootLayout({
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2362880425680323"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+  async
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8799997169133707"
+  crossOrigin="anonymous"
+  strategy="afterInteractive"
+/>
         <Script
           id="clarity-script"
           strategy="afterInteractive"
